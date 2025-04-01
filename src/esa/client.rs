@@ -40,6 +40,7 @@ impl EsaClient {
         let payload = CommentRequest {
             comment: CommentPayload {
                 body_md: body.to_string(),
+                user: Some("esa_bot".to_string()),
             },
         };
 
