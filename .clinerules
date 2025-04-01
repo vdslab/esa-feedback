@@ -1,0 +1,69 @@
+# esa-feedback プロジェクトルール
+
+## プロジェクト概要
+
+このプロジェクトは、esa.io に投稿された記事に対して LLM（Vertex AI）でフィードバックコメントを行うツールです。
+Cloud Run にデプロイされ、esa.io の webhook で投稿の通知を受け取り、記事の内容を Vertex AI の API に送信し、
+生成されたフィードバックを esa.io の API を用いて投稿のコメントとして投稿します。
+
+## プロジェクト構造
+
+- `src/`: ソースコード
+  - `esa/`: esa.io 関連のコード
+    - `client.rs`: esa.io API クライアント
+    - `models.rs`: esa.io のデータモデル
+    - `webhook.rs`: esa.io の webhook ペイロードパーサー
+  - `vertex_ai/`: Vertex AI 関連のコード
+    - `client.rs`: Vertex AI API クライアント
+    - `models.rs`: Vertex AI のデータモデル
+  - `handlers/`: 記事タイプ別のハンドラー
+    - `default/`: デフォルトハンドラー
+    - `weekly_report/`: 週報用ハンドラー
+    - `development/`: 開発記事用ハンドラー
+  - `config.rs`: 設定
+  - `error.rs`: エラー型
+  - `main.rs`: エントリーポイント
+  - `server.rs`: HTTP サーバー
+  - `webhook.rs`: webhook ハンドラー
+- `tests/`: 統合テスト
+
+## コーディング規約
+
+1. **警告の排除**: コンパイル時の警告は常に修正すること。未使用のインポートや変数には `#[allow(dead_code)]` 属性を追加する。
+2. **エラーハンドリング**: `Result<T, Error>` を使用し、適切なエラー型を定義する。
+3. **非同期処理**: `async/await` を使用し、適切なエラーハンドリングを行う。
+4. **テスト**: 新機能を追加する際は、単体テストと統合テストを追加する。
+5. **ドキュメント**: 関数やモジュールには適切なドキュメントコメントを追加する。
+6. **プロンプト管理**: プロンプトは各ハンドラーディレクトリ内の `prompt.txt` ファイルに保存し、`include_str!` マクロで読み込む。
+
+## ハンドラーの追加方法
+
+新しいタイプの記事に対応するハンドラーを追加する場合：
+
+1. `src/handlers/` に新しいディレクトリを作成
+2. `mod.rs` と `prompt.txt` ファイルを作成
+3. `src/handlers/mod.rs` の `route_webhook` 関数に新しいルーティングを追加
+
+## テスト方法
+
+1. 単体テスト: `cargo test`
+2. 統合テスト: `cargo test --test '*'`
+
+## 環境変数
+
+- `ESA_TEAM_NAME`: esa.io のチーム名
+- `ESA_ACCESS_TOKEN`: esa.io のアクセストークン
+- `VERTEX_AI_PROJECT_ID`: Google Cloud Project の ID
+- `VERTEX_AI_LOCATION`: Vertex AI のロケーション（例: us-central1）
+- `VERTEX_AI_MODEL`: Vertex AI のモデル名（例: gemini-1.0-pro）
+
+## デプロイ方法
+
+1. Docker イメージをビルド: `docker build -t esa-feedback .`
+2. Google Cloud Run にデプロイ
+
+## 注意事項
+
+- プロンプトの変更は、対応する `prompt.txt` ファイルを編集する。
+- 新しいハンドラーを追加する場合は、適切なルーティングを設定する。
+- 環境変数は `.env` ファイルまたは Cloud Run の環境変数で設定する。
