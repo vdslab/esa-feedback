@@ -1,5 +1,5 @@
 use crate::config::Config;
-use crate::error::{Error, Result};
+use crate::error::Result;
 use crate::esa::client::EsaClient;
 use crate::esa::models::WebhookPayload;
 use crate::vertex_ai::client::VertexAiClient;

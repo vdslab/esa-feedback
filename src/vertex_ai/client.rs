@@ -4,7 +4,9 @@ use reqwest::Client;
 
 pub struct VertexAiClient {
     client: Client,
+    #[allow(dead_code)]
     project_id: String,
+    #[allow(dead_code)]
     location: String,
     model: String,
     base_url: String,

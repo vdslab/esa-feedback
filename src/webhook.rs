@@ -1,6 +1,5 @@
 use crate::config::Config;
-use crate::error::{Error, Result};
-use crate::esa::models::WebhookPayload;
+use crate::error::Result;
 use crate::handlers::route_webhook;
 use serde_json::Value;
 use tracing::info;

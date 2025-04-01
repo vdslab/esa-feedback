@@ -27,6 +27,7 @@ pub enum Error {
     EsaApi(String),
 
     #[error("Pattern matching error: {0}")]
+    #[allow(dead_code)]
     PatternMatching(String),
 
     #[error("Unknown error: {0}")]
