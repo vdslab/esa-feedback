@@ -1,5 +1,6 @@
 use crate::error::{Error, Result};
 use crate::vertex_ai::models::{Content, GenerateContentRequest, GenerateContentResponse, Part};
+use google_cloud_auth::credentials::CredentialProvider;
 use reqwest::Client;
 
 pub struct VertexAiClient {
@@ -32,6 +33,17 @@ impl VertexAiClient {
     pub async fn generate_feedback(&self, content: &str, prompt: &str) -> Result<String> {
         let url = format!("{}/{}:generateContent", self.base_url, self.model);
 
+        // Application Default Credentials (ADC) を使用して認証情報を取得
+        let credential_provider = CredentialProvider::google_default()
+            .await
+            .map_err(|e| Error::VertexAi(format!("Failed to get ADC: {}", e)))?;
+
+        // アクセストークンを取得
+        let token = credential_provider
+            .token()
+            .await
+            .map_err(|e| Error::VertexAi(format!("Failed to get access token: {}", e)))?;
+
         // Create the request payload
         let request = GenerateContentRequest {
             contents: vec![Content {
@@ -42,10 +54,11 @@ impl VertexAiClient {
             }],
         };
 
-        // Send the request to Vertex AI
+        // Send the request to Vertex AI with authorization header
         let response = self
             .client
             .post(&url)
+            .bearer_auth(token.access_token)
             .json(&request)
             .send()
             .await
