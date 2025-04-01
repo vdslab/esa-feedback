@@ -1,6 +1,7 @@
 use crate::error::{Error, Result};
 use crate::vertex_ai::models::{Content, GenerateContentRequest, GenerateContentResponse, Part};
-use google_cloud_auth::credentials::Credential;
+use google_cloud_auth::credentials::CredentialsFile;
+use google_cloud_auth::token::Token;
 use reqwest::Client;
 
 pub struct VertexAiClient {
@@ -11,13 +12,13 @@ pub struct VertexAiClient {
     location: String,
     model: String,
     base_url: String,
-    credential: Credential,
+    credentials: CredentialsFile,
 }
 
 impl VertexAiClient {
     pub fn new(project_id: &str, location: &str, model: &str) -> Result<Self> {
         // Application Default Credentials (ADC) を使用して認証情報を取得
-        let credential = Credential::default()
+        let credentials = CredentialsFile::new()
             .map_err(|e| Error::VertexAi(format!("Failed to get ADC: {}", e)))?;
 
         let client = Client::new();
@@ -32,7 +33,7 @@ impl VertexAiClient {
             location: location.to_string(),
             model: model.to_string(),
             base_url,
-            credential,
+            credentials,
         })
     }
 
@@ -40,9 +41,13 @@ impl VertexAiClient {
         let url = format!("{}/{}:generateContent", self.base_url, self.model);
 
         // アクセストークンを取得
-        let token = self
-            .credential
-            .access_token()
+        let token_source = self
+            .credentials
+            .token_source()
+            .map_err(|e| Error::VertexAi(format!("Failed to create token source: {}", e)))?;
+
+        let token = token_source
+            .token()
             .await
             .map_err(|e| Error::VertexAi(format!("Failed to get access token: {}", e)))?;
 
@@ -60,7 +65,7 @@ impl VertexAiClient {
         let response = self
             .client
             .post(&url)
-            .bearer_auth(token.value())
+            .bearer_auth(token.access_token)
             .json(&request)
             .send()
             .await
