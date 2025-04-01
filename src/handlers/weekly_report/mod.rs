@@ -3,13 +3,11 @@ use crate::error::{Error, Result};
 use crate::esa::client::EsaClient;
 use crate::esa::models::WebhookPayload;
 use crate::vertex_ai::client::VertexAiClient;
-use std::fs;
-use std::path::Path;
 
 pub async fn handle(webhook_payload: &WebhookPayload, config: &Config) -> Result<()> {
-    // Load prompt from the same directory
-    let prompt_path = Path::new(file!()).parent().unwrap().join("prompt.txt");
-    let prompt = fs::read_to_string(prompt_path).map_err(|e| Error::Io(e))?;
+    // プロンプトをinclude_str!マクロで読み込む
+    let prompt = include_str!("prompt.txt");
+    let content = &webhook_payload.post.body_md;
 
     // Initialize Vertex AI client
     let vertex_client = VertexAiClient::new(
@@ -19,9 +17,7 @@ pub async fn handle(webhook_payload: &WebhookPayload, config: &Config) -> Result
     )?;
 
     // Generate feedback
-    let feedback = vertex_client
-        .generate_feedback(&webhook_payload.post.body_md, &prompt)
-        .await?;
+    let feedback = vertex_client.generate_feedback(content, prompt).await?;
 
     // Initialize esa.io client
     let esa_client = EsaClient::new(&config.esa_team_name, &config.esa_access_token)?;
