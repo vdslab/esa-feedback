@@ -25,6 +25,12 @@ jobs:
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2
 
+      - name: Set up Google Cloud credentials
+        id: auth
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+
       - name: Check formatting
         run: cargo fmt --check
 
@@ -38,4 +44,5 @@ jobs:
           VERTEX_AI_PROJECT_ID: ${{ secrets.VERTEX_AI_PROJECT_ID }}
           VERTEX_AI_LOCATION: ${{ secrets.VERTEX_AI_LOCATION || 'us-central1' }}
           VERTEX_AI_MODEL: ${{ secrets.VERTEX_AI_MODEL || 'gemini-pro' }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
         run: cargo test --verbose
