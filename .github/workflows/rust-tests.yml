@@ -39,10 +39,10 @@ jobs:
 
       - name: Run tests
         env:
-          ESA_ACCESS_TOKEN: ${{ secrets.ESA_ACCESS_TOKEN }}
-          ESA_TEAM_NAME: ${{ secrets.ESA_TEAM_NAME }}
-          VERTEX_AI_PROJECT_ID: ${{ secrets.VERTEX_AI_PROJECT_ID }}
-          VERTEX_AI_LOCATION: ${{ secrets.VERTEX_AI_LOCATION || 'us-central1' }}
-          VERTEX_AI_MODEL: ${{ secrets.VERTEX_AI_MODEL || 'gemini-pro' }}
+          ESA_ACCESS_TOKEN: ${{ vars.ESA_ACCESS_TOKEN }}
+          ESA_TEAM_NAME: ${{ vars.ESA_TEAM_NAME }}
+          VERTEX_AI_PROJECT_ID: ${{ vars.VERTEX_AI_PROJECT_ID }}
+          VERTEX_AI_LOCATION: ${{ vars.VERTEX_AI_LOCATION || 'us-central1' }}
+          VERTEX_AI_MODEL: ${{ vars.VERTEX_AI_MODEL || 'gemini-pro' }}
           GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
         run: cargo test --verbose
