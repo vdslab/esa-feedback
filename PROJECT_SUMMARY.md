@@ -113,6 +113,35 @@ esa-feedback/
 
 5. **設定管理**: 環境変数を使用して設定を管理しています。dotenv を使用して.env ファイルから環境変数を読み込むこともできます。
 
+## CI/CD
+
+### GitHub Actions
+
+このプロジェクトでは、GitHub Actions を使用して継続的インテグレーション（CI）を実装しています。GitHub Actions の設定は `.github/workflows/rust-tests.yml` ファイルで定義されています。
+
+#### ワークフローの概要
+
+- **トリガー**: main ブランチへのプッシュ、または任意のブランチからのプルリクエスト
+- **実行環境**: Ubuntu 最新版
+- **実行内容**:
+  1. Rust ツールチェーンのインストール
+  2. 依存関係のキャッシュ
+  3. コードフォーマットのチェック (`cargo fmt --check`)
+  4. Clippy による静的解析 (`cargo clippy -- -D warnings`)
+  5. 単体テストと統合テスト (`cargo test`)
+
+#### 環境変数とシークレット
+
+テストを実行するために、以下の GitHub シークレットを設定する必要があります：
+
+- `ESA_ACCESS_TOKEN`: esa.io の API アクセストークン
+- `ESA_TEAM_NAME`: esa.io のチーム名
+- `VERTEX_AI_PROJECT_ID`: Google Cloud Project の ID
+- `VERTEX_AI_LOCATION`: Vertex AI のロケーション（デフォルト: us-central1）
+- `VERTEX_AI_MODEL`: 使用するモデル名（デフォルト: gemini-pro）
+
+これらのシークレットは、GitHub リポジトリの Settings > Secrets and variables > Actions で設定できます。
+
 ## デプロイ
 
 このアプリケーションは Cloud Run にデプロイすることを想定しています。デプロイ手順は以下の通りです：

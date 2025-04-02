@@ -84,6 +84,32 @@ cargo run
 
 詳細は [PROJECT_SUMMARY.md](PROJECT_SUMMARY.md) を参照してください。
 
+## CI/CD
+
+### GitHub Actions
+
+このプロジェクトには GitHub Actions を使用した継続的インテグレーション（CI）の設定が含まれています。この設定により、コードの変更がプッシュされたり、プルリクエストが作成されたりするたびに自動的にテストが実行されます。
+
+GitHub Actions の設定は `.github/workflows/rust-tests.yml` ファイルで定義されています。
+
+#### 実行されるチェック
+
+- コードフォーマットのチェック（`cargo fmt --check`）
+- Clippy による静的解析（`cargo clippy -- -D warnings`）
+- 単体テストと統合テスト（`cargo test`）
+
+#### 必要な GitHub シークレットの設定
+
+テストを正常に実行するには、以下の GitHub シークレットを設定する必要があります：
+
+1. GitHub リポジトリの Settings > Secrets and variables > Actions に移動
+2. 以下のシークレットを追加：
+   - `ESA_ACCESS_TOKEN`: esa.io の API アクセストークン
+   - `ESA_TEAM_NAME`: esa.io のチーム名
+   - `VERTEX_AI_PROJECT_ID`: Google Cloud Project の ID
+   - `VERTEX_AI_LOCATION`: Vertex AI のロケーション（デフォルト: us-central1）
+   - `VERTEX_AI_MODEL`: 使用するモデル名（デフォルト: gemini-pro）
+
 ## デプロイ
 
 このアプリケーションは Cloud Run にデプロイすることを想定しています。

@@ -1,0 +1,41 @@
+name: Rust Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  RUST_LOG: info
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Check formatting
+        run: cargo fmt --check
+
+      - name: Check clippy warnings
+        run: cargo clippy -- -D warnings
+
+      - name: Run tests
+        env:
+          ESA_ACCESS_TOKEN: ${{ secrets.ESA_ACCESS_TOKEN }}
+          ESA_TEAM_NAME: ${{ secrets.ESA_TEAM_NAME }}
+          VERTEX_AI_PROJECT_ID: ${{ secrets.VERTEX_AI_PROJECT_ID }}
+          VERTEX_AI_LOCATION: ${{ secrets.VERTEX_AI_LOCATION || 'us-central1' }}
+          VERTEX_AI_MODEL: ${{ secrets.VERTEX_AI_MODEL || 'gemini-pro' }}
+        run: cargo test --verbose
