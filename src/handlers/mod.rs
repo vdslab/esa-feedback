@@ -23,12 +23,12 @@ pub async fn route_webhook(webhook_payload: &WebhookPayload, config: &Config) ->
     // Match patterns and call the appropriate handler
     if Regex::new(r"^週報/").unwrap().is_match(post_path) {
         info!("Matched weekly report pattern for post: {:?}", post_path);
-        return weekly_report::handle(webhook_payload, config).await;
+        weekly_report::handle(webhook_payload, config).await
     } else {
         info!(
             "Post does not match any handler pattern, skipping: {:?}",
             post_path
         );
-        return Ok(());
+        Ok(())
     }
 }
