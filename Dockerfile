@@ -3,11 +3,17 @@ FROM rust:slim as builder
 WORKDIR /usr/src/app
 COPY . .
 
+# Install dependencies for SSL support
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 # Build the application
-RUN cargo build --release
+RUN RUST_BACKTRACE=1 cargo build --release -v
 
 # Runtime stage
-FROM debian:bullseye-slim
+FROM rust:slim
 
 # Install OpenSSL and CA certificates for HTTPS requests
 RUN apt-get update && apt-get install -y \
