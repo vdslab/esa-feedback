@@ -13,7 +13,7 @@ pub struct AppState {
     pub config: Arc<Config>,
 }
 
-pub async fn create_app(config: Config) -> Router {
+pub fn create_app(config: Config) -> Router {
     let state = AppState {
         config: Arc::new(config),
     };
@@ -25,7 +25,7 @@ pub async fn create_app(config: Config) -> Router {
 }
 
 pub async fn run_server(config: Config) -> Result<()> {
-    let app = create_app(config).await;
+    let app = create_app(config);
 
     // Bind to 0.0.0.0:8080
     let addr = SocketAddr::from(([0, 0, 0, 0], 8080));

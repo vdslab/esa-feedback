@@ -9,6 +9,12 @@ pub mod development;
 pub mod weekly_report;
 
 pub async fn route_webhook(webhook_payload: &WebhookPayload, config: &Config) -> Result<()> {
+    // Skip processing if the post is a work in progress (wip)
+    if webhook_payload.post.wip {
+        info!("Skipping WIP post: {}", webhook_payload.post.number);
+        return Ok(());
+    }
+
     let post_path = webhook_payload
         .post
         .full_name
